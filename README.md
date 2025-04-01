@@ -3,6 +3,11 @@
 ## 📌 Description
 Backend for an inventory control solution that utilizes a mobile barcode scanning app. Written with FastAPI, SQLModel, and PostgreSQL.
 
+## 🚀 Features
+- Easy to setup and run
+- Helpful documentation with API calling frontend
+
+
 ## 🛠️ Installation
 ```sh
 # Clone the repository
