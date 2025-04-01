@@ -20,5 +20,7 @@ npm install  # or yarn install
 fastapi dev main.py
 ```
 
+Use ngrok to connect to the frontend!
+
 ## 📷 Screenshots
 ![image](https://github.com/user-attachments/assets/34e70b0a-b164-4009-afe8-ea8e9893d3cd)
