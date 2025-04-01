@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from typing import Annotated
 from pydantic import BaseModel
-from db import SQLModel, Session, InventoryItem, engine
+from db import InventoryItem, ReportItem, engine
+from sqlmodel import SQLModel, Session, select, delete
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -34,7 +35,7 @@ def getInventoryItem(item_SKU: int, session: SessionDep) -> InventoryItem:
     return item
 
 @app.delete("/inventory/{item_SKU}")
-def deleteInventoryItem(item_SKU: int, session: SessionDep) -> InventoryItem:
+def deleteInventoryItem(item_SKU: int, session: SessionDep):
     item = session.get(InventoryItem, item_SKU)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -42,4 +43,24 @@ def deleteInventoryItem(item_SKU: int, session: SessionDep) -> InventoryItem:
     session.commit()
 
     return {"ok": True}
+
+@app.post("/reports/{item_SKU}")
+def addReportItem(item_SKU: int, session: SessionDep) -> ReportItem:
+    invitem = session.get(InventoryItem,item_SKU)
+
+    if not invitem:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    repItem = session.get(ReportItem, {"Quality" : invitem.Quality, "Width" : invitem.Width, "Thickness" : invitem.Thickness})
+
+    if not repItem:
+        session.add(ReportItem(Quality = invitem.Quality, Width = invitem.Width,Thickness = invitem.Thickness,Quantity = 1))
+    else:
+        repItem.Quantity = repItem.Quantity + 1
+        session.add(repItem)
+        session.commit
+
+@app.get("/reports/tally")
+def generateReport(session: SessionDep) -> list[ReportItem]:
+    return session.exec(select(ReportItem)).all()
 
